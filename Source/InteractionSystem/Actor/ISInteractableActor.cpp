@@ -8,13 +8,16 @@
 AISInteractableActor::AISInteractableActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	DefaultScenComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
+	RootComponent = DefaultScenComponent;
 	
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	RootComponent = StaticMesh;
+	StaticMesh->SetupAttachment(DefaultScenComponent);
 	//StaticMesh->SetupAttachment(SphereComponent);
 	
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	SphereComponent->SetupAttachment(RootComponent);
+	SphereComponent->SetupAttachment(StaticMesh);
 }
 
 void AISInteractableActor::Interact(AActor* Interactor)

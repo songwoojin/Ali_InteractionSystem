@@ -5,10 +5,13 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "Interface/ISInteractable.h"
+#include "Components/WidgetComponent.h"
 
 UISPlayerInteractionComponent::UISPlayerInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	InteractionWidgetComponent=CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 }
 
 void UISPlayerInteractionComponent::ExecuteInteraction()
@@ -43,6 +46,11 @@ void UISPlayerInteractionComponent::BeginPlay()
 			PlayerCapsuleComponent->OnComponentEndOverlap.AddDynamic(this,&UISPlayerInteractionComponent::OnOverlapEnd);
 		}
 	}
+
+	//InteractionWidgetComponent->AttachToComponent(Character->GetRootComponent(FAttachmentTransformRules::KeepRelativeTransform);
+	InteractionWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); // 항상 카메라를 향함
+	InteractionWidgetComponent->SetDrawSize(FVector2D(250.f, 30.f));
+	//InteractionWidgetComponent->SetVisibility(false); // 기본은 숨김
 	
 }
 
@@ -52,6 +60,7 @@ void UISPlayerInteractionComponent::OnOverlapBegin(UPrimitiveComponent* Overlapp
 	if (OtherActor->Implements<UISInteractable>())
 	{
 		InteractablesInRange.AddUnique(OtherActor);
+		RenderInteractionWidget();
 	}
 }
 
@@ -61,13 +70,8 @@ void UISPlayerInteractionComponent::OnOverlapEnd(UPrimitiveComponent* Overlapped
 	if (OtherActor->Implements<UISInteractable>())
 	{
 		InteractablesInRange.Remove(OtherActor);
+		RenderInteractionWidget();
 	}
-}
-
-void UISPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
 void UISPlayerInteractionComponent::OnNotifyInteractBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
@@ -76,13 +80,44 @@ void UISPlayerInteractionComponent::OnNotifyInteractBegin(FName NotifyName, cons
 	
 	if (NotifyName == FName("Interact")) // 몽타주 노티파이 이름과 매칭
 	{
-		AActor* InteractableActor =InteractablesInRange[0];
-		
-		IISInteractable* Interactable = Cast<IISInteractable>(InteractableActor);
+		IISInteractable* Interactable = Cast<IISInteractable>(GetActiveInteractable());
 		if (Interactable)
 		{
 			Interactable->Interact(GetOwner());
 		}
 	}
 }
+
+void UISPlayerInteractionComponent::RenderInteractionWidget()
+{
+	if(InteractablesInRange.IsEmpty())
+	{
+		InteractionWidgetComponent->SetWidget(nullptr);
+	}
+	else
+	{
+		if (InteractionWidgetClass)
+		{
+			InteractionWidget=CreateWidget<UUserWidget>(GetWorld(),InteractionWidgetClass);
+			InteractionWidgetComponent->SetWidget(InteractionWidget);
+			InteractionWidgetComponent->SetWorldLocation(GetActiveInteractable()->GetActorLocation());
+		}	
+	}
+}
+
+AActor* UISPlayerInteractionComponent::GetActiveInteractable()
+{
+	if (InteractablesInRange.IsEmpty())	return nullptr;
+
+	AActor* LastInteractableActor = InteractablesInRange.Last();
+
+	return LastInteractableActor;
+}
+
+void UISPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+}
+
 

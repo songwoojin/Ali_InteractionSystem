@@ -24,6 +24,9 @@ protected:
 	void PlayInteractionSound();
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere)
+	USceneComponent* DefaultScenComponent;
 	
     UPROPERTY(EditAnywhere)
     UStaticMeshComponent* StaticMesh;
