@@ -10,7 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "InteractionSystem.h"
-#include "Interface/ISInteractable.h"
+#include "Component/ISPlayerInteractionComponent.h"
 
 AInteractionSystemCharacter::AInteractionSystemCharacter()
 {
@@ -49,8 +49,7 @@ AInteractionSystemCharacter::AInteractionSystemCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this,&AInteractionSystemCharacter::OnOverlapBegin);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this,&AInteractionSystemCharacter::OnOverlapEnd);
+	InteractionComponent=CreateDefaultSubobject<UISPlayerInteractionComponent>(TEXT("InteractionComponent"));
 }
 
 void AInteractionSystemCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -98,15 +97,7 @@ void AInteractionSystemCharacter::Look(const FInputActionValue& Value)
 
 void AInteractionSystemCharacter::Interact(const FInputActionValue& Value)
 {
-	if (InteractablesInRange.IsEmpty())	return;
-	
-	AActor* InteractableActor =InteractablesInRange[0];
-	
-	IISInteractable* Interactable = Cast<IISInteractable>(InteractableActor);
-	if (Interactable)
-	{
-		Interactable->Interact(this);
-	}
+	InteractionComponent->Interact();
 }
 
 void AInteractionSystemCharacter::DoMove(float Right, float Forward)
@@ -149,28 +140,4 @@ void AInteractionSystemCharacter::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
-}
-
-void AInteractionSystemCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	// IISInteractable* Interactable = Cast<IISInteractable>(OtherActor);
-	// if (Interactable)
-	// {
-	// 	Interactable->Interact(this);
-	// }
-
-	if (OtherActor->Implements<UISInteractable>())
-	{
-		InteractablesInRange.AddUnique(OtherActor);
-	}
-}
-
-void AInteractionSystemCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (OtherActor->Implements<UISInteractable>())
-	{
-		InteractablesInRange.Remove(OtherActor);
-	}
 }

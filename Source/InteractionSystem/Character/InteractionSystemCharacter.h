@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "InteractionSystemCharacter.generated.h"
 
+class UISPlayerInteractionComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
@@ -97,25 +98,7 @@ public:
 
 	//Interaction System
 protected:
-	UFUNCTION()
-	void OnOverlapBegin(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);
-
-	UFUNCTION()
-	void OnOverlapEnd(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);
-
-protected:
-	TArray<TObjectPtr<AActor>> InteractablesInRange;
+	UISPlayerInteractionComponent* InteractionComponent;
+	
 };
 
