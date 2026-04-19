@@ -98,6 +98,7 @@ public:
 
 	//Interaction System
 protected:
+	UPROPERTY(VisibleAnywhere)
 	UISPlayerInteractionComponent* InteractionComponent;
 	
 };

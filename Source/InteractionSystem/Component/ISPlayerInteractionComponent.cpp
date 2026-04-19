@@ -11,16 +11,21 @@ UISPlayerInteractionComponent::UISPlayerInteractionComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UISPlayerInteractionComponent::Interact()
+void UISPlayerInteractionComponent::ExecuteInteraction()
 {
-	if (InteractablesInRange.IsEmpty())	return;
-	
-	AActor* InteractableActor =InteractablesInRange[0];
-	
-	IISInteractable* Interactable = Cast<IISInteractable>(InteractableActor);
-	if (Interactable)
+	if (InteractionMontage)
 	{
-		Interactable->Interact(GetOwner());
+		UAnimInstance* AnimInstance=Character->GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// 노티파이 이름으로 직접 수신!
+			// AddDynamic 대신 — 이미 바인딩되어 있으면 중복 추가 안 함
+			if (!AnimInstance->OnPlayMontageNotifyBegin.IsAlreadyBound(this, &UISPlayerInteractionComponent::OnNotifyInteractBegin))
+			{
+				AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &UISPlayerInteractionComponent::OnNotifyInteractBegin);
+			}
+			AnimInstance->Montage_Play(InteractionMontage);
+		}
 	}
 }
 
@@ -28,7 +33,7 @@ void UISPlayerInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ACharacter* Character= Cast<ACharacter>(GetOwner());
+	Character= Cast<ACharacter>(GetOwner());
 	if (Character)
 	{
 		UCapsuleComponent* PlayerCapsuleComponent = Character->GetCapsuleComponent();
@@ -63,5 +68,21 @@ void UISPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+}
+
+void UISPlayerInteractionComponent::OnNotifyInteractBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
+{
+	if (InteractablesInRange.IsEmpty())	return;
+	
+	if (NotifyName == FName("Interact")) // 몽타주 노티파이 이름과 매칭
+	{
+		AActor* InteractableActor =InteractablesInRange[0];
+		
+		IISInteractable* Interactable = Cast<IISInteractable>(InteractableActor);
+		if (Interactable)
+		{
+			Interactable->Interact(GetOwner());
+		}
+	}
 }
 

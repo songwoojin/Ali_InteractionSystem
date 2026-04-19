@@ -15,7 +15,7 @@ class INTERACTIONSYSTEM_API UISPlayerInteractionComponent : public UActorCompone
 public:	
 	UISPlayerInteractionComponent();
 
-	void Interact();
+	void ExecuteInteraction();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -43,6 +43,16 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
+	UPROPERTY()
 	TArray<TObjectPtr<AActor>> InteractablesInRange;
-		
+
+	UPROPERTY()
+	ACharacter* Character;
+
+	UPROPERTY(EditAnywhere,  Category="ISSettings|Animation")
+	UAnimMontage* InteractionMontage;
+	
+	UFUNCTION()
+	void OnNotifyInteractBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload);
+	
 };

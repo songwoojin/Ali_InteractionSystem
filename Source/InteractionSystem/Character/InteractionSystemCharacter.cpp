@@ -97,7 +97,7 @@ void AInteractionSystemCharacter::Look(const FInputActionValue& Value)
 
 void AInteractionSystemCharacter::Interact(const FInputActionValue& Value)
 {
-	InteractionComponent->Interact();
+	InteractionComponent->ExecuteInteraction();
 }
 
 void AInteractionSystemCharacter::DoMove(float Right, float Forward)
