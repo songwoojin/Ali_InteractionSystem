@@ -17,15 +17,13 @@ class INTERACTIONSYSTEM_API AISDoorActor : public AISInteractableActor
 
 public:
 	AISDoorActor();
-	virtual void Interact(AActor* Interactor) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void Interact(AActor* Interactor) override;
 private:
 	void OpenDoor();
 	void CloseDoor();
 
-protected:
-	
 private:
 	bool bIsOpen;
 

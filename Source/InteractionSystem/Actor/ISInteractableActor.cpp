@@ -25,6 +25,11 @@ void AISInteractableActor::Interact(AActor* Interactor)
 	PlayInteractionSound();
 }
 
+EIsInteractionType AISInteractableActor::GetInteractionType()
+{
+	return EIsInteractionType;
+}
+
 void AISInteractableActor::BeginPlay()
 {
 	Super::BeginPlay();

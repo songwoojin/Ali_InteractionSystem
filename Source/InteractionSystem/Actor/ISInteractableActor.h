@@ -17,6 +17,7 @@ class INTERACTIONSYSTEM_API AISInteractableActor : public AActor,public IISInter
 public:	
 	AISInteractableActor();
 	virtual void Interact(AActor* Interactor) override;
+	virtual EIsInteractionType GetInteractionType() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -36,4 +37,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	USoundBase* InteractionSound;
+
+	UPROPERTY(EditAnywhere)
+	EIsInteractionType EIsInteractionType;
 };

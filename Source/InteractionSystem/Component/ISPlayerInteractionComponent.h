@@ -43,8 +43,11 @@ protected:
 	void OnNotifyInteractBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload);
 
 	void RenderInteractionWidget();
-
 	AActor* GetActiveInteractable();
+	void InteractWithActiveInteractable();
+
+	UFUNCTION()
+	void OnInteractionOngoing(float ElapsedSeconds);
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -67,4 +70,5 @@ protected:
 
 	UPROPERTY()
 	UUserWidget* InteractionWidget;
+
 };

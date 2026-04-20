@@ -7,13 +7,15 @@
 #include "Logging/LogMacros.h"
 #include "InteractionSystemCharacter.generated.h"
 
+struct FInputActionInstance;
 class UISPlayerInteractionComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 
-DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionPressOngoing,float,ElapsedSeconds);
 
 /**
  *  A simple player-controllable third person character
@@ -54,7 +56,9 @@ protected:
 	UInputAction* InteractionAction;
 public:
 	/** Constructor */
-	AInteractionSystemCharacter();	
+	AInteractionSystemCharacter();
+
+	FOnInteractionPressOngoing OnInteractionPressOngoing;
 
 protected:
 
@@ -69,7 +73,9 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 	
-	void Interact(const FInputActionValue& Value);
+	void InteractBegin(const FInputActionValue& Value);
+	void OnInteractActionOngoing(const FInputActionInstance& Instance);
+	void OnInteractActionEnd(const FInputActionInstance& Instance);
 public:
 
 	/** Handles move inputs from either controls or UI interfaces */

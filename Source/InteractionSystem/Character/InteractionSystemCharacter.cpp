@@ -69,7 +69,10 @@ void AInteractionSystemCharacter::SetupPlayerInputComponent(UInputComponent* Pla
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AInteractionSystemCharacter::Look);
 
 		//Interact
-		EnhancedInputComponent->BindAction(InteractionAction, ETriggerEvent::Started, this, &AInteractionSystemCharacter::Interact);
+		EnhancedInputComponent->BindAction(InteractionAction, ETriggerEvent::Started, this, &AInteractionSystemCharacter::InteractBegin);
+		EnhancedInputComponent->BindAction(InteractionAction, ETriggerEvent::Ongoing, this, &AInteractionSystemCharacter::OnInteractActionOngoing);
+		EnhancedInputComponent->BindAction(InteractionAction, ETriggerEvent::Canceled, this, &AInteractionSystemCharacter::OnInteractActionEnd);
+		EnhancedInputComponent->BindAction(InteractionAction, ETriggerEvent::Completed, this, &AInteractionSystemCharacter::OnInteractActionEnd);
 	}
 	else
 	{
@@ -95,9 +98,23 @@ void AInteractionSystemCharacter::Look(const FInputActionValue& Value)
 	DoLook(LookAxisVector.X, LookAxisVector.Y);
 }
 
-void AInteractionSystemCharacter::Interact(const FInputActionValue& Value)
+void AInteractionSystemCharacter::InteractBegin(const FInputActionValue& Value)
 {
 	InteractionComponent->ExecuteInteraction();
+}
+
+void AInteractionSystemCharacter::OnInteractActionOngoing(const FInputActionInstance& Instance)
+{
+	float ElapsedTime = Instance.GetElapsedTime();
+
+	UE_LOG(LogTemp,Warning,TEXT("OnInteractActionOngoing: %f"),ElapsedTime);
+	
+	OnInteractionPressOngoing.Broadcast(ElapsedTime);
+}
+
+void AInteractionSystemCharacter::OnInteractActionEnd(const FInputActionInstance& Instance)
+{
+	OnInteractionPressOngoing.Clear();
 }
 
 void AInteractionSystemCharacter::DoMove(float Right, float Forward)

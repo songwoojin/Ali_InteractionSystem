@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "ISInteractable.generated.h"
 
+enum class EIsInteractionType : uint8;
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UISInteractable : public UInterface
@@ -23,4 +24,5 @@ class INTERACTIONSYSTEM_API IISInteractable
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void Interact(AActor* Interactor)=0;
+	virtual EIsInteractionType GetInteractionType() = 0;
 };

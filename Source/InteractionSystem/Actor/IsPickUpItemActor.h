@@ -15,4 +15,6 @@ class INTERACTIONSYSTEM_API AIsPickUpItemActor : public AISInteractableActor
 	GENERATED_BODY()
 public:
 	virtual void Interact(AActor* Interactor) override;
+
+
 };

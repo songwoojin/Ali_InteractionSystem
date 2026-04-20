@@ -3,6 +3,8 @@
 
 #include "Actor/ISDoorActor.h"
 
+#include "Enum/ISInteractionType.h"
+
 AISDoorActor::AISDoorActor()
 	:bIsOpen(false)
 {
