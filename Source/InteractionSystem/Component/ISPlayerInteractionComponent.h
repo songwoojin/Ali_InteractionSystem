@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ISPlayerInteractionComponent.generated.h"
 
+class UISInteractionWidget;
 class UWidgetComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -17,9 +18,10 @@ public:
 	UISPlayerInteractionComponent();
 
 	void ExecuteInteraction();
-	
+	UISInteractionWidget* GetInteractionWidget() const { return InteractionWidget; }
 protected:
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
 	void OnOverlapBegin(
@@ -49,9 +51,6 @@ protected:
 	UFUNCTION()
 	void OnInteractionOngoing(float ElapsedSeconds);
 
-public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 protected:
 	UPROPERTY()
 	TArray<TObjectPtr<AActor>> InteractablesInRange;
@@ -66,9 +65,9 @@ protected:
 	UWidgetComponent* InteractionWidgetComponent;
 
 	UPROPERTY(EditAnywhere, Category = "ISSettings|UI")
-	TSubclassOf<UUserWidget> InteractionWidgetClass;
+	TSubclassOf<UISInteractionWidget> InteractionWidgetClass;
 
 	UPROPERTY()
-	UUserWidget* InteractionWidget;
+	UISInteractionWidget* InteractionWidget;
 
 };

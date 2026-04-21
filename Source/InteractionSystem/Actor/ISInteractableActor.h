@@ -18,6 +18,7 @@ public:
 	AISInteractableActor();
 	virtual void Interact(AActor* Interactor) override;
 	virtual EIsInteractionType GetInteractionType() override;
+	virtual float GetHoldDuration() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -40,4 +41,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	EIsInteractionType EIsInteractionType;
+
+	UPROPERTY(EditAnywhere)
+	float HoldDuration;
 };

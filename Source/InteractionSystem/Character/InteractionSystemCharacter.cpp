@@ -11,6 +11,7 @@
 #include "InputActionValue.h"
 #include "InteractionSystem.h"
 #include "Component/ISPlayerInteractionComponent.h"
+#include "UI/ISInteractionWidget.h"
 
 AInteractionSystemCharacter::AInteractionSystemCharacter()
 {
@@ -115,6 +116,8 @@ void AInteractionSystemCharacter::OnInteractActionOngoing(const FInputActionInst
 void AInteractionSystemCharacter::OnInteractActionEnd(const FInputActionInstance& Instance)
 {
 	OnInteractionPressOngoing.Clear();
+
+	InteractionComponent->GetInteractionWidget()->SetProgressPercent(0.0f);
 }
 
 void AInteractionSystemCharacter::DoMove(float Right, float Forward)

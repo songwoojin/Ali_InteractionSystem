@@ -58,6 +58,7 @@ public:
 	/** Constructor */
 	AInteractionSystemCharacter();
 
+	UPROPERTY(BlueprintAssignable)
 	FOnInteractionPressOngoing OnInteractionPressOngoing;
 
 protected:
@@ -104,7 +105,6 @@ public:
 
 	//Interaction System
 protected:
-	UPROPERTY(VisibleAnywhere)
 	UISPlayerInteractionComponent* InteractionComponent;
 	
 };

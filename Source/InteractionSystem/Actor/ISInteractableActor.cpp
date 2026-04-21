@@ -30,6 +30,11 @@ EIsInteractionType AISInteractableActor::GetInteractionType()
 	return EIsInteractionType;
 }
 
+float AISInteractableActor::GetHoldDuration()
+{
+	return HoldDuration;
+}
+
 void AISInteractableActor::BeginPlay()
 {
 	Super::BeginPlay();

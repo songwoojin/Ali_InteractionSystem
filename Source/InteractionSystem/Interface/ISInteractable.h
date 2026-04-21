@@ -25,4 +25,5 @@ class INTERACTIONSYSTEM_API IISInteractable
 public:
 	virtual void Interact(AActor* Interactor)=0;
 	virtual EIsInteractionType GetInteractionType() = 0;
+	virtual float GetHoldDuration() = 0;
 };

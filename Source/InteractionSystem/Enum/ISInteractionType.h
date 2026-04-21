@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ISInteractionType.generated.h" // 이게 반드시 있어야 함
 
 /**
  * 

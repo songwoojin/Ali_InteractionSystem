@@ -2,13 +2,13 @@
 
 
 #include "Component/ISPlayerInteractionComponent.h"
-
 #include "Character/InteractionSystemCharacter.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "Interface/ISInteractable.h"
 #include "Components/WidgetComponent.h"
 #include "Enum/ISInteractionType.h"
+#include "UI/ISInteractionWidget.h"
 
 UISPlayerInteractionComponent::UISPlayerInteractionComponent()
 {
@@ -101,7 +101,7 @@ void UISPlayerInteractionComponent::OnNotifyInteractBegin(FName NotifyName, cons
 
 void UISPlayerInteractionComponent::RenderInteractionWidget()
 {
-	if(InteractablesInRange.IsEmpty())
+	if(!GetActiveInteractable())
 	{
 		InteractionWidgetComponent->SetWidget(nullptr);
 	}
@@ -109,9 +109,19 @@ void UISPlayerInteractionComponent::RenderInteractionWidget()
 	{
 		if (InteractionWidgetClass)
 		{
-			InteractionWidget=CreateWidget<UUserWidget>(GetWorld(),InteractionWidgetClass);
-			InteractionWidgetComponent->SetWidget(InteractionWidget);
-			InteractionWidgetComponent->SetWorldLocation(GetActiveInteractable()->GetActorLocation());
+			InteractionWidget=CreateWidget<UISInteractionWidget>(GetWorld(),InteractionWidgetClass);
+			if (InteractionWidget)
+			{
+				if (IISInteractable* ISInteractable = Cast<IISInteractable>(GetActiveInteractable()))
+				{
+					EIsInteractionType IsInteractionType = ISInteractable->GetInteractionType();
+					InteractionWidget->SetInteractionType(IsInteractionType);
+				}
+				
+				InteractionWidgetComponent->SetWidget(InteractionWidget);
+				InteractionWidgetComponent->SetWorldLocation(GetActiveInteractable()->GetActorLocation());
+			}
+			
 		}	
 	}
 }
@@ -147,14 +157,25 @@ void UISPlayerInteractionComponent::InteractWithActiveInteractable()
 
 void UISPlayerInteractionComponent::OnInteractionOngoing(float ElapsedSeconds)
 {
-	if (ElapsedSeconds > 1.0f)
+	if (InteractionWidget)
 	{
-		InteractWithActiveInteractable();
-		if (AInteractionSystemCharacter* ISCharacter=Cast<AInteractionSystemCharacter>(Character))
+		if (IISInteractable* ISInteractable = Cast<IISInteractable>(GetActiveInteractable()))
 		{
-			ISCharacter->OnInteractionPressOngoing.RemoveDynamic(this,&UISPlayerInteractionComponent::OnInteractionOngoing);
+			float HoldeDuration = ISInteractable->GetHoldDuration();
+			float Percent=ElapsedSeconds/HoldeDuration;
+			InteractionWidget->SetProgressPercent(Percent);
+
+			if (ElapsedSeconds > HoldeDuration)
+			{
+				InteractWithActiveInteractable();
+				if (AInteractionSystemCharacter* ISCharacter=Cast<AInteractionSystemCharacter>(Character))
+				{
+					ISCharacter->OnInteractionPressOngoing.RemoveDynamic(this,&UISPlayerInteractionComponent::OnInteractionOngoing);
+				}
+			}
 		}
 	}
+	
 }
 
 void UISPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
