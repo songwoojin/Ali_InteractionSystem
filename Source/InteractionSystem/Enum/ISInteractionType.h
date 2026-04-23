@@ -13,4 +13,5 @@ enum class EIsInteractionType  : uint8 // uint8 타입을 사용하는 것이 �
 {
     Press     UMETA(DisplayName = "Press"),
     Hold  UMETA(DisplayName = "Hold"),
+    Tap  UMETA(DisplayName = "Tap"),
 };

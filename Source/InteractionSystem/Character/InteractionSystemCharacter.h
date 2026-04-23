@@ -16,6 +16,7 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionPressOngoing,float,ElapsedSeconds);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionEnd);
 
 /**
  *  A simple player-controllable third person character
@@ -60,6 +61,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnInteractionPressOngoing OnInteractionPressOngoing;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnInteractionEnd OnInteractionEnd;
 
 protected:
 

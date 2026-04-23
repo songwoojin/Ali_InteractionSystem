@@ -117,7 +117,9 @@ void AInteractionSystemCharacter::OnInteractActionEnd(const FInputActionInstance
 {
 	OnInteractionPressOngoing.Clear();
 
-	InteractionComponent->GetInteractionWidget()->SetProgressPercent(0.0f);
+	OnInteractionEnd.Broadcast();
+
+	//InteractionComponent->GetInteractionWidget()->SetProgressPercent(0.0f);
 }
 
 void AInteractionSystemCharacter::DoMove(float Right, float Forward)

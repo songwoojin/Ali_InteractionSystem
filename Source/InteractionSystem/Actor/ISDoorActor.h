@@ -20,6 +20,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void Interact(AActor* Interactor) override;
+	virtual FText GetInteractionPrompt() override;
+	virtual FVector GetInteractionLocation() override;
 private:
 	void OpenDoor();
 	void CloseDoor();
@@ -37,4 +39,7 @@ private:
 
 	UFUNCTION()
 	void OnDoorUpdate(float Value);
+
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* InteractionLocation;
 };

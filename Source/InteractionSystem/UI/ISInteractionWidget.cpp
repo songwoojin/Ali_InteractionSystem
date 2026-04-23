@@ -16,3 +16,8 @@ void UISInteractionWidget::SetProgressPercent(float InPercent)
 		InteractionProgressBar->SetPercent(InPercent);
 	}
 }
+
+void UISInteractionWidget::SetInteractionPromptText(FText PromptText)
+{
+	InteractionPromptText = PromptText;
+}

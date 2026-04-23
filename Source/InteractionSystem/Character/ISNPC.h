@@ -3,54 +3,40 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "Interface/ISInteractable.h"
-#include "ISInteractableActor.generated.h"
+#include "ISNPC.generated.h"
 
 class USphereComponent;
 
 UCLASS()
-class INTERACTIONSYSTEM_API AISInteractableActor : public AActor,public IISInteractable
+class INTERACTIONSYSTEM_API AISNPC : public ACharacter ,public IISInteractable
 {
 	GENERATED_BODY()
-	
-public:	
-	AISInteractableActor();
+
+public:
+	AISNPC();
 	virtual void Interact(AActor* Interactor) override;
 	virtual EIsInteractionType GetInteractionType() override;
 	virtual float GetHoldDuration() override;
 	virtual FText GetInteractionPrompt() override;
 	virtual int32 GetTapCount() override;
 	virtual FVector GetInteractionLocation() override;
-
+	
 protected:
 	virtual void BeginPlay() override;
-
 	void PlayInteractionSound();
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	USceneComponent* DefaultScenComponent;
-	
-    UPROPERTY(EditAnywhere)
-    UStaticMeshComponent* StaticMesh;
-    
-    UPROPERTY(EditAnywhere)
-    USphereComponent* SphereComponent;
+protected:
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent* SphereComponent;
 
 	UPROPERTY(EditAnywhere)
 	USoundBase* InteractionSound;
 
-	UPROPERTY(EditAnywhere)
-	EIsInteractionType EIsInteractionType;
-
-	UPROPERTY(EditAnywhere)
-	float HoldDuration;
-
-	UPROPERTY(EditAnywhere)
-	FText InteractionPromptText;
-
-	UPROPERTY(EditAnywhere)
-	int32 TapCount;
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent* InteractionLocation;
 };

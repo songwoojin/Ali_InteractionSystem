@@ -15,3 +15,8 @@ void AIsPickUpItemActor::Interact(AActor* Interactor)
 
 	Destroy();
 }
+
+FText AIsPickUpItemActor::GetInteractionPrompt()
+{
+	return Super::GetInteractionPrompt();
+}

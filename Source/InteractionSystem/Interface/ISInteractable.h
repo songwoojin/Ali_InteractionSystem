@@ -26,4 +26,7 @@ public:
 	virtual void Interact(AActor* Interactor)=0;
 	virtual EIsInteractionType GetInteractionType() = 0;
 	virtual float GetHoldDuration() = 0;
+	virtual FText GetInteractionPrompt() = 0;
+	virtual int32 GetTapCount() = 0;
+	virtual FVector GetInteractionLocation() = 0;
 };

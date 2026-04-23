@@ -47,9 +47,16 @@ protected:
 	void RenderInteractionWidget();
 	AActor* GetActiveInteractable();
 	void InteractWithActiveInteractable();
+	void FaceWithTarget();
 
 	UFUNCTION()
 	void OnInteractionOngoing(float ElapsedSeconds);
+
+	void InteractionTap();
+	void ResetInteractionState();
+	
+	UFUNCTION()
+	void ResetWidgetProgress();
 
 protected:
 	UPROPERTY()
@@ -69,5 +76,10 @@ protected:
 
 	UPROPERTY()
 	UISInteractionWidget* InteractionWidget;
+
+	UPROPERTY(EditAnywhere, Category = "ISSettings|Tap")
+	USoundBase* InteractionTapSound;
+	
+	int32 CurrentTapCount;
 
 };

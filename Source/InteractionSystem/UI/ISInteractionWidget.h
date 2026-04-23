@@ -25,10 +25,17 @@ public:
 	EIsInteractionType GetInteractionType() const { return InteractionType; }
 
 	void SetProgressPercent(float InPercent);
+
+	void SetInteractionPromptText(FText PromptText);
+
+	UFUNCTION(BlueprintPure)
+	FText GetInteractionPromptText() const { return InteractionPromptText; }
 	
 protected:
 	EIsInteractionType InteractionType;
 
 	UPROPERTY(BlueprintReadOnly,meta=(AllowPrivateAccess="true",BindWidget))
 	TObjectPtr<UProgressBar> InteractionProgressBar;
+
+	FText InteractionPromptText;
 };

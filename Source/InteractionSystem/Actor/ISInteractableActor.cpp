@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 
 AISInteractableActor::AISInteractableActor()
+	:TapCount(4)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -18,6 +19,8 @@ AISInteractableActor::AISInteractableActor()
 	
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	SphereComponent->SetupAttachment(StaticMesh);
+
+	InteractionPromptText=FText::FromString("to interact");
 }
 
 void AISInteractableActor::Interact(AActor* Interactor)
@@ -33,6 +36,21 @@ EIsInteractionType AISInteractableActor::GetInteractionType()
 float AISInteractableActor::GetHoldDuration()
 {
 	return HoldDuration;
+}
+
+FText AISInteractableActor::GetInteractionPrompt()
+{
+	return InteractionPromptText;
+}
+
+INT32 AISInteractableActor::GetTapCount()
+{
+	return TapCount;
+}
+
+FVector AISInteractableActor::GetInteractionLocation()
+{
+	return GetActorLocation();
 }
 
 void AISInteractableActor::BeginPlay()

@@ -9,6 +9,7 @@
 #include "Components/WidgetComponent.h"
 #include "Enum/ISInteractionType.h"
 #include "UI/ISInteractionWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 UISPlayerInteractionComponent::UISPlayerInteractionComponent()
 {
@@ -35,8 +36,13 @@ void UISPlayerInteractionComponent::ExecuteInteraction()
 				if (AInteractionSystemCharacter* ISCharacter=Cast<AInteractionSystemCharacter>(Character))
 				{
 					ISCharacter->OnInteractionPressOngoing.AddDynamic(this,&UISPlayerInteractionComponent::OnInteractionOngoing);
+					ISCharacter->OnInteractionEnd.AddDynamic(this,&UISPlayerInteractionComponent::ResetWidgetProgress);
 				}
-
+				break;
+			}
+		case EIsInteractionType::Tap:
+			{
+				InteractionTap();
 				break;
 			}
 		}
@@ -68,6 +74,7 @@ void UISPlayerInteractionComponent::BeginPlay()
 void UISPlayerInteractionComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	
 	if (OtherActor->Implements<UISInteractable>())
 	{
 		InteractablesInRange.AddUnique(OtherActor);
@@ -80,6 +87,10 @@ void UISPlayerInteractionComponent::OnOverlapEnd(UPrimitiveComponent* Overlapped
 {
 	if (OtherActor->Implements<UISInteractable>())
 	{
+		if (GetActiveInteractable()==OtherActor)
+		{
+			ResetInteractionState();
+		}
 		InteractablesInRange.Remove(OtherActor);
 		RenderInteractionWidget();
 	}
@@ -95,6 +106,8 @@ void UISPlayerInteractionComponent::OnNotifyInteractBegin(FName NotifyName, cons
 		if (Interactable)
 		{
 			Interactable->Interact(GetOwner());
+			RenderInteractionWidget();
+			ResetInteractionState();
 		}
 	}
 }
@@ -116,10 +129,15 @@ void UISPlayerInteractionComponent::RenderInteractionWidget()
 				{
 					EIsInteractionType IsInteractionType = ISInteractable->GetInteractionType();
 					InteractionWidget->SetInteractionType(IsInteractionType);
+					
+					FText InteractionPromptText = ISInteractable->GetInteractionPrompt();
+					InteractionWidget->SetInteractionPromptText(InteractionPromptText);
+
+					InteractionWidgetComponent->SetWidget(InteractionWidget);
+
+					FVector InteractionLocation=ISInteractable->GetInteractionLocation();
+					InteractionWidgetComponent->SetWorldLocation(InteractionLocation);
 				}
-				
-				InteractionWidgetComponent->SetWidget(InteractionWidget);
-				InteractionWidgetComponent->SetWorldLocation(GetActiveInteractable()->GetActorLocation());
 			}
 			
 		}	
@@ -138,6 +156,8 @@ AActor* UISPlayerInteractionComponent::GetActiveInteractable()
 void UISPlayerInteractionComponent::InteractWithActiveInteractable()
 {
 	if (!GetActiveInteractable())	return;
+
+	FaceWithTarget();
 	
 	if (InteractionMontage)
 	{
@@ -152,6 +172,17 @@ void UISPlayerInteractionComponent::InteractWithActiveInteractable()
 			}
 			AnimInstance->Montage_Play(InteractionMontage);
 		}
+	}
+}
+
+void UISPlayerInteractionComponent::FaceWithTarget()
+{
+	if (IISInteractable* ISInteractable = Cast<IISInteractable>(GetActiveInteractable()))
+	{
+		FVector InteractionLocation=ISInteractable->GetInteractionLocation();
+		FVector Direction=(InteractionLocation-Character->GetActorLocation()).GetSafeNormal();
+		FRotator LookAtRot=Direction.Rotation();
+		GetOwner()->SetActorRotation(FRotator(0.0f,LookAtRot.Yaw,0.0f));
 	}
 }
 
@@ -176,6 +207,61 @@ void UISPlayerInteractionComponent::OnInteractionOngoing(float ElapsedSeconds)
 		}
 	}
 	
+}
+
+void UISPlayerInteractionComponent::InteractionTap()
+{
+	if (!InteractionTapSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), InteractionTapSound, Character->GetActorLocation());
+	}
+
+	CurrentTapCount++;
+	
+	if (IISInteractable* ISInteratable = Cast<IISInteractable>(GetActiveInteractable()))
+	{
+		int32 MaxCount=ISInteratable->GetTapCount();
+		
+		if (CurrentTapCount<=0)
+		{
+			InteractWithActiveInteractable();
+		}
+		else
+		{
+			if (IsValid(InteractionWidget))
+			{
+				float Percent=static_cast<float>(CurrentTapCount)/MaxCount;
+				InteractionWidget->SetProgressPercent(Percent);
+			}
+
+			if (CurrentTapCount>=MaxCount)
+			{
+				InteractWithActiveInteractable();
+			}
+		}
+	}
+}
+
+void UISPlayerInteractionComponent::ResetInteractionState()
+{
+	AInteractionSystemCharacter* ISCharacter=Cast<AInteractionSystemCharacter>(Character);
+	{
+		ISCharacter->OnInteractionPressOngoing.RemoveDynamic(this,&UISPlayerInteractionComponent::OnInteractionOngoing);
+	}
+
+	CurrentTapCount=0;
+}
+
+void UISPlayerInteractionComponent::ResetWidgetProgress()
+{
+	if (IsValid(InteractionWidget))
+	{
+		InteractionWidget->SetProgressPercent(0);
+		if (AInteractionSystemCharacter* ISCharacter=Cast<AInteractionSystemCharacter>(Character))
+		{
+			ISCharacter->OnInteractionEnd.RemoveDynamic(this,&UISPlayerInteractionComponent::ResetWidgetProgress);
+		}
+	}
 }
 
 void UISPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

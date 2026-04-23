@@ -8,6 +8,8 @@
 AISDoorActor::AISDoorActor()
 	:bIsOpen(false)
 {
+	InteractionLocation = CreateDefaultSubobject<USceneComponent>(TEXT("InteractionLocation"));
+	InteractionLocation->SetupAttachment(StaticMesh);
 }
 
 void AISDoorActor::Interact(AActor* Interactor)
@@ -22,6 +24,25 @@ void AISDoorActor::Interact(AActor* Interactor)
 	{
 		OpenDoor();
 	}
+}
+
+FText AISDoorActor::GetInteractionPrompt()
+{
+	if (!bIsOpen)
+	{
+		InteractionPromptText=FText::FromString("to open the door");
+	}
+	else
+	{
+		InteractionPromptText=FText::FromString("to close the door");
+	}
+
+	return InteractionPromptText;
+}
+
+FVector AISDoorActor::GetInteractionLocation()
+{
+	return InteractionLocation->GetComponentLocation();
 }
 
 void AISDoorActor::BeginPlay()
